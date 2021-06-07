@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/byeongjae-kang/tinyapp/issues"
   },
-  "homepage": "https://github.com/byeongjae-kang/tinyapp#readme"
+  "homepage": "https://github.com/byeongjae-kang/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
