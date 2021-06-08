@@ -10,6 +10,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const generateRandomString = () => {
+  let randomString = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+  for (let i = 0; i < 6; i++) {
+    randomString += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return randomString;
+};
+
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({extended: true}));
+
+
 app.get("/", (request, response) => {
   response.send("Hello!");
 });
@@ -29,6 +43,12 @@ app.get("/urls", (request, response) => {
 
 app.get("/urls/new", (request, response) => {
   response.render("urls_new");
+});
+
+app.post("/urls", (request, response) => {
+  console.log(request);  // Log the POST request body to the console
+  console.log(request.body);  // Log the POST request body to the console
+  response.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
 
 app.get("/urls/:shortURL", (request, response) => {
