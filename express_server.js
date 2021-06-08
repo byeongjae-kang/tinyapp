@@ -21,7 +21,6 @@ const generateRandomString = () => {
 };
 
 const bodyParser = require("body-parser");
-const { request, response } = require("express");
 app.use(bodyParser.urlencoded({extended: true}));
 
 
@@ -55,6 +54,7 @@ app.post("/urls", (request, response) => {
 app.get("/urls/:shortURL", (request, response) => {
   const templateVars = { shortURL: request.params.shortURL, longURL: urlDatabase[request.params.shortURL]};
   response.render("urls_show", templateVars);
+  console.log();
   
 });
 
