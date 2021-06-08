@@ -21,11 +21,14 @@
       </thead>
       <tbody>
         <% for(let url in urls) { %>
-          <tr>
-            <td><%= url %></td>
-            <td><%= urls[url] %></td>
-          </tr>
-        <% } %>
+          <form method="POST" action="/urls/<%= url %>/delete">
+            <tr>
+              <td><%= url %></td>
+              <td><%= urls[url] %></td>
+              <td><button type="submit" style="width: 100px; border: black bold 2px; border-color: red; padding: 7px; border-radius: 5px; background-color: white; color: red; font-weight: bold; font-family:Arial, Helvetica, sans-serif; font-size: 25px; margin-left: auto;">Delete</button></td>
+            </tr>
+          </form>
+            <% } %>
       </tbody>
     </table>
   </main>
