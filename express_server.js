@@ -57,7 +57,10 @@ app.get("/urls/:shortURL", (request, response) => {
   
 });
 
-
+app.get("/u/:shortURL", (request, response) => {
+  const longURL = urlDatabase[request.params.shortURL];
+  response.redirect(longURL);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
