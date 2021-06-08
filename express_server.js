@@ -21,6 +21,7 @@ const generateRandomString = () => {
 };
 
 const bodyParser = require("body-parser");
+const { request, response } = require("express");
 app.use(bodyParser.urlencoded({extended: true}));
 
 
@@ -60,6 +61,12 @@ app.get("/urls/:shortURL", (request, response) => {
 app.get("/u/:shortURL", (request, response) => {
   const longURL = urlDatabase[request.params.shortURL];
   response.redirect(longURL);
+});
+
+app.post("/urls/:id/delete", (request, response) => {
+  const url = request.params.id;
+  delete urlDatabase[url];
+  response.redirect("/urls");
 });
 
 app.listen(PORT, () => {
