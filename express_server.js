@@ -27,12 +27,18 @@ app.get("/urls", (request, response) => {
   response.render("urls_index", templateVars);
 });
 
+app.get("/urls/new", (request, response) => {
+  response.render("urls_new");
+});
+
 app.get("/urls/:shortURL", (request, response) => {
   const templateVars = { shortURL: request.params.shortURL, longURL: urlDatabase[request.params.shortURL]};
   console.log(request);
   response.render("urls_show", templateVars);
   
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
