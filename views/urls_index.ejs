@@ -3,6 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <style>
+    #delete {
+      width: 100px;
+      border: black bold 2px; 
+      border-color: red; padding: 7px;
+      border-radius: 5px;
+      background-color: white;
+      color: red;
+      font-weight: bold;
+      font-family:Arial, Helvetica, sans-serif;
+      font-size: 25px;
+      margin-left: auto;
+    };
+  </style>
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
@@ -25,7 +39,7 @@
             <tr>
               <td><%= url %></td>
               <td><%= urls[url] %></td>
-              <td><button type="submit" style="width: 100px; border: black bold 2px; border-color: red; padding: 7px; border-radius: 5px; background-color: white; color: red; font-weight: bold; font-family:Arial, Helvetica, sans-serif; font-size: 25px; margin-left: auto;">Delete</button></td>
+              <td><button id='delete' type="submit" >Delete</button></td>
             </tr>
           </form>
             <% } %>
