@@ -41,11 +41,18 @@ app.get("/hello", (request, response) => {
 
 // get request from client and render templates
 app.get("/urls", (request, response) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {
+    urls: urlDatabase,
+    username: request.cookies["username"]
+  };
+  console.log(templateVars.username);
   response.render("urls_index", templateVars);
 });
 app.get("/urls/new", (request, response) => {
-  response.render("urls_new");
+  const templateVars = {
+    username: request.cookies["username"]
+  };
+  response.render("urls_new", templateVars);
 });
 
 //post url and redirect to /urls/:shortURL
@@ -57,7 +64,11 @@ app.post("/urls", (request, response) => {
 
 // get request from client and render templates
 app.get("/urls/:shortURL", (request, response) => {
-  const templateVars = { shortURL: request.params.shortURL, longURL: urlDatabase[request.params.shortURL]};
+  const templateVars = {
+    shortURL: request.params.shortURL,
+    longURL: urlDatabase[request.params.shortURL],
+    username: request.cookies["username"]
+  };
   response.render("urls_show", templateVars);
 });
 
@@ -84,7 +95,7 @@ app.post("/urls/:shortURL", (request, response) => {
 app.post("/login", (request, response) => {
   const username = request.body.username;
   response.cookie('username', `${username}`);
-  response.redirect("/urls");
+  response.redirect('/urls');
 });
 
 // server Listener
