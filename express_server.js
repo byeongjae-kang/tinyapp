@@ -163,7 +163,7 @@ app.get("/login", (request, response) => {
   response.render('user-login', templateVars);
 });
 
-// get cookie when login
+// check email and password, and if correct then set cookie and redirect to urls page
 app.post("/login", (request, response) => {
   const email = request.body.email;
   const password = request.body.password;
