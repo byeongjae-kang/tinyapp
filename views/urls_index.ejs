@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <style>
     td button {
-      width: 100px;
+      width: auto;
       border: black bold 2px; 
       border-color: blue; padding: 7px;
       border-radius: 5px;
@@ -14,7 +14,7 @@
       font-weight: bold;
       font-family:Arial, Helvetica, sans-serif;
       font-size: 25px;
-      margin-left: auto;
+      margin: auto;
     };
     
   </style>
@@ -36,14 +36,17 @@
       </thead>
       <tbody>
         <% for(let url in urls) { %>
-          <form method="POST">
-            <tr>
-              <td><%= url %></td>
-              <td><%= urls[url] %></td>
-              <td><button id='edit' action="/urls/<%= url %>/" type="submit">Edit</button></td>
-              <td><button id='delete' action="/urls/<%= url %>/delete" type="submit" style="color: red; border-color: red">Delete</button></td>
-            </tr>
-          </form>
+          <tr>
+            <td><%= url %></td>
+            <td><%= urls[url] %></td>
+            <td>
+              <a href="/urls/<%= url %>"><button id='edit' type="submit">Edit</button></a>
+              <% console.log(); %>
+            </td>
+            <form method="POST" action="/urls/<%= url %>/delete">
+              <td><button id='delete'  type="submit" style="color: red; border-color: red">Delete</button></td>
+            </form>
+          </tr>
             <% } %>
       </tbody>
     </table>
