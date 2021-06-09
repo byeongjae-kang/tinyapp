@@ -147,8 +147,12 @@ app.post("/register", (request, response) => {
   const email = request.body.email;
   const password = request.body.password;
   
+  if (!email || !password) {
+    return response.status(400).send("please enter valid email address and password");
+  }
+
   if (checkUserExistsByEmail(email)) {
-    return response.status(406).send("the email address exist");
+    return response.status(400).send("the email address exist");
   }
   
   const user = {
