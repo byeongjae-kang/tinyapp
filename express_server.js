@@ -113,24 +113,12 @@ app.post("/urls/:shortURL/delete", (request, response) => {
   response.redirect("/urls");
 });
 
+
 // post route to edit longURL
 app.post("/urls/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
   urlDatabase[shortURL] = request.body.longURL;
   response.redirect(`/urls/${shortURL}`);
-});
-
-// get cookie when login
-app.post("/login", (request, response) => {
-  const username = request.body.username;
-  response.cookie('username', `${username}`);
-  response.redirect('/urls');
-});
-
-// clear cookie when logout
-app.post("/logout", (request, response) => {
-  response.clearCookie("user_id");
-  response.redirect('/urls');
 });
 
 // render register template
@@ -164,6 +152,29 @@ app.post("/register", (request, response) => {
   response.cookie("user_id", userId);
   response.redirect("/urls");
 });
+
+// to render login template
+app.get("/login", (request, response) => {
+  const templateVars = {
+    user: users[request.cookies["user_id"]]
+  };
+  response.render('user-login', templateVars);
+});
+
+// get cookie when login
+app.post("/login", (request, response) => {
+  const username = request.body.username;
+  response.cookie('username', `${username}`);
+  response.redirect('/urls');
+});
+
+// clear cookie when logout
+app.post("/logout", (request, response) => {
+  response.clearCookie("user_id");
+  response.redirect('/urls');
+});
+
+
 
 // server Listener
 app.listen(PORT, () => {
