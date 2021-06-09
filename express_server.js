@@ -24,8 +24,7 @@ const generateRandomString = () => {
 };
 
 // this makes request body readable
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: false }));
 
 // worming up, not critical
 app.get("/", (request, response) => {
