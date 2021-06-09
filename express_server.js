@@ -10,10 +10,23 @@ app.set("view engine", "ejs");
 app.use(cookieParser());
 app.use(morgan('dev'));
 
-// initial data
+// when user add longURL random shortURL and longURL stored in here
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+// when user registered info stored in here
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
 };
 
 // string to be used as shortURL
@@ -40,6 +53,8 @@ app.get("/urls.json", (request, response) => {
 app.get("/hello", (request, response) => {
   response.send("<html><body>Hello <b>World</b></body> </html>\n");
 });
+
+
 
 // get request from client and render templates
 app.get("/urls", (request, response) => {
@@ -103,10 +118,17 @@ app.post("/login", (request, response) => {
 
 // clear cookie when logout
 app.post("/logout", (request, response) => {
-  const username = request.body.username;
   response.clearCookie("username");
   response.redirect('/urls');
 });
+
+app.get("/register", (request, response) => {
+  const templateVars = {
+    username: request.cookies["username"]
+  };
+  response.render("user-registration", templateVars);
+});
+
 
 
 // server Listener
