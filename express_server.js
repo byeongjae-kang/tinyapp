@@ -46,11 +46,13 @@ const checkUserExistsByEmail = (email) => {
   for (const key of keys) {
     const user = users[key];
     if (user.email === email) {
-      return email;
+      return user;
     }
   }
   return false;
 };
+
+
 
 // this makes request body readable
 app.use(express.urlencoded({ extended: false }));
@@ -163,15 +165,31 @@ app.get("/login", (request, response) => {
 
 // get cookie when login
 app.post("/login", (request, response) => {
-  const username = request.body.username;
-  response.cookie('username', `${username}`);
-  response.redirect('/urls');
+  const email = request.body.email;
+  const password = request.body.password;
+  console.log(password);
+  const user = checkUserExistsByEmail(email);
+  console.log(user.password);
+  const userId = user.id;
+  
+  console.log(users);
+
+  if (!user) {
+    return response.status(403).send("Please enter valid email address");
+  }
+  
+  if (user.password !== password) {
+    return response.status(403).send("Please enter valid password");
+  }
+
+  response.cookie("user_id", userId);
+  response.redirect("/urls");
 });
 
 // clear cookie when logout
 app.post("/logout", (request, response) => {
   response.clearCookie("user_id");
-  response.redirect('/urls');
+  response.redirect('/login');
 });
 
 
