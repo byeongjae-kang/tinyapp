@@ -40,6 +40,18 @@ const generateRandomString = () => {
   return randomString;
 };
 
+// to check if the user exists
+const checkUserExistsByEmail = (email) => {
+  const keys = Object.keys(users);
+  for (const key of keys) {
+    const user = users[key];
+    if (user.email === email) {
+      return email;
+    }
+  }
+  return false;
+};
+
 // this makes request body readable
 app.use(express.urlencoded({ extended: false }));
 
@@ -60,14 +72,13 @@ app.get("/hello", (request, response) => {
 app.get("/urls", (request, response) => {
   const templateVars = {
     urls: urlDatabase,
-    username: request.cookies["username"]
+    user: users[request.cookies["user_id"]]
   };
-  console.log(templateVars.username);
   response.render("urls_index", templateVars);
 });
 app.get("/urls/new", (request, response) => {
   const templateVars = {
-    username: request.cookies["username"]
+    user: users[request.cookies["user_id"]]
   };
   response.render("urls_new", templateVars);
 });
@@ -84,7 +95,7 @@ app.get("/urls/:shortURL", (request, response) => {
   const templateVars = {
     shortURL: request.params.shortURL,
     longURL: urlDatabase[request.params.shortURL],
-    username: request.cookies["username"]
+    user: users[request.cookies["user_id"]]
   };
   response.render("urls_show", templateVars);
 });
@@ -118,18 +129,37 @@ app.post("/login", (request, response) => {
 
 // clear cookie when logout
 app.post("/logout", (request, response) => {
-  response.clearCookie("username");
+  response.clearCookie("user_id");
   response.redirect('/urls');
 });
 
+// render register template
 app.get("/register", (request, response) => {
   const templateVars = {
-    username: request.cookies["username"]
+    user: users[request.cookies["user_id"]]
   };
   response.render("user-registration", templateVars);
 });
 
-
+// store when user email and password, but if exists, set status code and send message
+app.post("/register", (request, response) => {
+  const userId = generateRandomString();
+  const email = request.body.email;
+  const password = request.body.password;
+  
+  if (checkUserExistsByEmail(email)) {
+    return response.status(406).send("the email address exist");
+  }
+  
+  const user = {
+    id: userId,
+    email,
+    password
+  };
+  users[userId] = user;
+  response.cookie("user_id", userId);
+  response.redirect("/urls");
+});
 
 // server Listener
 app.listen(PORT, () => {
