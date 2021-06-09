@@ -92,11 +92,20 @@ app.post("/urls/:shortURL", (request, response) => {
   response.redirect(`/urls/${shortURL}`);
 });
 
+// get cookie when login
 app.post("/login", (request, response) => {
   const username = request.body.username;
   response.cookie('username', `${username}`);
   response.redirect('/urls');
 });
+
+// clear cookie when logout
+app.post("/logout", (request, response) => {
+  const username = request.body.username;
+  response.clearCookie("username");
+  response.redirect('/urls');
+});
+
 
 // server Listener
 app.listen(PORT, () => {
