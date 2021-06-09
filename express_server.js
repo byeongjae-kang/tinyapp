@@ -1,10 +1,12 @@
-// require express
-const express = require("express");
-const app = express();
-const PORT = 8080; // default port 8080
 
-// set ejs
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const app = express();
+const PORT = 8080;
+
+
 app.set("view engine", "ejs");
+app.use(cookieParser());
 
 // initial data
 const urlDatabase = {
@@ -77,6 +79,12 @@ app.post("/urls/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
   urlDatabase[shortURL] = request.body.longURL;
   response.redirect(`/urls/${shortURL}`);
+});
+
+app.post("/login", (request, response) => {
+  const username = request.body.username;
+  response.cookie('username', `${username}`);
+  response.redirect("/urls");
 });
 
 // server Listener
