@@ -2,6 +2,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8607;
+const { getUserByEmail } = require('./helpers');
 const cookieSession = require("cookie-session");
 const morgan = require("morgan");
 const bcrypt = require("bcryptjs");
@@ -48,17 +49,7 @@ const generateRandomString = () => {
   }
   return randomString;
 };
-// get email and return user or false
-const getUserByEmail = (email, database) => {
-  const keys = Object.keys(database);
-  for (const key of keys) {
-    const user = database[key];
-    if (user.email === email) {
-      return user;
-    }
-  }
-  return false;
-};
+
 const urlsForUser = (id) => {
   const filteredObject = {};
   const keys = Object.keys(urlDatabase);
