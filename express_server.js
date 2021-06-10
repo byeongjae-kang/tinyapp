@@ -12,9 +12,10 @@ app.use(morgan('dev'));
 
 // when user add longURL random shortURL and longURL stored in here
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userId: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userId: "aJ48lW" }
 };
+
 // when user registered info stored in here
 const users = {
   "userRandomID": {
@@ -72,46 +73,54 @@ app.get("/hello", (request, response) => {
 
 // get request from client and render templates
 app.get("/urls", (request, response) => {
-  const templateVars = {
-    urls: urlDatabase,
-    user: users[request.cookies["user_id"]]
-  };
+  const urls = urlDatabase;
+  const user = users[request.cookies["user_id"]];
+  const templateVars = { urls, user };
   response.render("urls_index", templateVars);
 });
+
 app.get("/urls/new", (request, response) => {
-  const templateVars = {
-    user: users[request.cookies["user_id"]]
-  };
+  const login = request.cookies.user_id;
+  if (!login) {
+    console.log(login);
+    return response.redirect("/login");
+  }
+
+  const user =  users[request.cookies["user_id"]];
+  const templateVars = { user };
   response.render("urls_new", templateVars);
 });
 
 //post url and redirect to /urls/:shortURL
 app.post("/urls", (request, response) => {
   const randomString = generateRandomString();
-  urlDatabase[randomString] = request.body.longURL;
+  const longURL = request.body.longURL;
+  const userId = request.cookies["user_id"];
+  
+  urlDatabase[randomString] = { longURL, userId };
   response.redirect(`/urls/${randomString}`);
 });
 
 // get request from client and render templates
 app.get("/urls/:shortURL", (request, response) => {
-  const templateVars = {
-    shortURL: request.params.shortURL,
-    longURL: urlDatabase[request.params.shortURL],
-    user: users[request.cookies["user_id"]]
-  };
+  const shortURL = request.params.shortURL;
+  const longURL = urlDatabase[shortURL].longURL;
+  const user = users[request.cookies["user_id"]];
+  const templateVars = { shortURL, longURL, user };
   response.render("urls_show", templateVars);
 });
 
 // get request from client and redirect to longURL: actual website
 app.get("/u/:shortURL", (request, response) => {
-  const longURL = urlDatabase[request.params.shortURL];
+  const shortURL = request.params.shortURL;
+  const longURL = urlDatabase[shortURL].longURL;
   response.redirect(longURL);
 });
 
 // post ruote to remove urls
 app.post("/urls/:shortURL/delete", (request, response) => {
-  const url = request.params.shortURL;
-  delete urlDatabase[url];
+  const shortURL = request.params.shortURL;
+  delete urlDatabase[shortURL];
   response.redirect("/urls");
 });
 
@@ -119,15 +128,15 @@ app.post("/urls/:shortURL/delete", (request, response) => {
 // post route to edit longURL
 app.post("/urls/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
-  urlDatabase[shortURL] = request.body.longURL;
+  const longURL = request.body.longURL;
+  urlDatabase[shortURL].longURL = longURL;
   response.redirect(`/urls/${shortURL}`);
 });
 
 // render register template
 app.get("/register", (request, response) => {
-  const templateVars = {
-    user: users[request.cookies["user_id"]]
-  };
+  const user = users[request.cookies["user_id"]];
+  const templateVars = { user };
   response.render("user-registration", templateVars);
 });
 
@@ -137,8 +146,12 @@ app.post("/register", (request, response) => {
   const email = request.body.email;
   const password = request.body.password;
   
-  if (!email || !password) {
-    return response.status(400).send("please enter valid email address and password");
+  if (!email) {
+    return response.status(400).send("please enter email address");
+  }
+
+  if (!password) {
+    return response.status(400).send("please enter password");
   }
 
   if (checkUserExistsByEmail(email)) {
@@ -157,9 +170,8 @@ app.post("/register", (request, response) => {
 
 // to render login template
 app.get("/login", (request, response) => {
-  const templateVars = {
-    user: users[request.cookies["user_id"]]
-  };
+  const user = users[request.cookies["user_id"]];
+  const templateVars = { user };
   response.render('user-login', templateVars);
 });
 
@@ -167,12 +179,8 @@ app.get("/login", (request, response) => {
 app.post("/login", (request, response) => {
   const email = request.body.email;
   const password = request.body.password;
-  console.log(password);
   const user = checkUserExistsByEmail(email);
-  console.log(user.password);
   const userId = user.id;
-  
-  console.log(users);
 
   if (!user) {
     return response.status(403).send("Please enter valid email address");
@@ -191,8 +199,6 @@ app.post("/logout", (request, response) => {
   response.clearCookie("user_id");
   response.redirect('/login');
 });
-
-
 
 // server Listener
 app.listen(PORT, () => {
