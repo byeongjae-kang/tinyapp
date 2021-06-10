@@ -151,8 +151,10 @@ app.post("/urls/:shortURL", (request, response) => {
 
 // render register template
 app.get("/register", (request, response) => {
-  const user = users[request.cookies["user_id"]];
+  const userId = request.cookies["user_id"];
+  const user = users[userId];
   const templateVars = { user };
+  console.log(templateVars);
   response.render("user-registration", templateVars);
 });
 
@@ -215,6 +217,7 @@ app.post("/logout", (request, response) => {
   response.clearCookie("user_id");
   response.redirect('/login');
 });
+
 
 // server Listener
 app.listen(PORT, () => {
