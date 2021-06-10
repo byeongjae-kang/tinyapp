@@ -53,7 +53,17 @@ const checkUserExistsByEmail = (email) => {
   return false;
 };
 
-
+const urlsForUser = (id) => {
+  const filteredObject = {};
+  const keys = Object.keys(urlDatabase);
+  for (const key of keys) {
+    const userId = urlDatabase[key].userId;
+    if (userId === id) {
+      filteredObject[key] = urlDatabase[key];
+    }
+  }
+  return filteredObject;
+};
 
 // this makes request body readable
 app.use(express.urlencoded({ extended: false }));
@@ -73,20 +83,20 @@ app.get("/hello", (request, response) => {
 
 // get request from client and render templates
 app.get("/urls", (request, response) => {
-  const urls = urlDatabase;
-  const user = users[request.cookies["user_id"]];
+  const userId = request.cookies["user_id"];
+  const user = users[userId];
+  const urls = urlsForUser(userId);
   const templateVars = { urls, user };
   response.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (request, response) => {
-  const login = request.cookies.user_id;
-  if (!login) {
-    console.log(login);
+  const userId = request.cookies.user_id;
+  const user =  users[userId];
+  if (!user) {
     return response.redirect("/login");
   }
 
-  const user =  users[request.cookies["user_id"]];
   const templateVars = { user };
   response.render("urls_new", templateVars);
 });
@@ -119,17 +129,23 @@ app.get("/u/:shortURL", (request, response) => {
 
 // post ruote to remove urls
 app.post("/urls/:shortURL/delete", (request, response) => {
-  const shortURL = request.params.shortURL;
-  delete urlDatabase[shortURL];
+  const userId = request.cookies["user_id"];
+  if (userId) {
+    const shortURL = request.params.shortURL;
+    delete urlDatabase[shortURL];
+  }
   response.redirect("/urls");
 });
 
 
 // post route to edit longURL
 app.post("/urls/:shortURL", (request, response) => {
+  const userId = request.cookies["user_id"];
   const shortURL = request.params.shortURL;
-  const longURL = request.body.longURL;
-  urlDatabase[shortURL].longURL = longURL;
+  if (userId) {
+    const longURL = request.body.longURL;
+    urlDatabase[shortURL].longURL = longURL;
+  }
   response.redirect(`/urls/${shortURL}`);
 });
 
