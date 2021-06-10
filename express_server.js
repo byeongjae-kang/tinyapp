@@ -10,7 +10,7 @@ used dependencies": {
 */
 const express = require("express");
 const app = express();
-const PORT = 8080;
+const PORT = 8607;
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const bcrypt = require("bcryptjs");
@@ -149,7 +149,6 @@ app.get("/register", (request, response) => {
   const userId = request.cookies["user_id"];
   const user = users[userId];
   const templateVars = { user };
-  console.log(templateVars);
   response.render("user-registration", templateVars);
 });
 // store when user email and password, but if exists, set status code and send message
@@ -166,14 +165,24 @@ app.post("/register", (request, response) => {
   if (checkUserExistsByEmail(email)) {
     return response.status(400).send("the email address exist");
   }
-  const user = {
-    id: userId,
-    email,
-    password
-  };
-  users[userId] = user;
-  response.cookie("user_id", userId);
-  response.redirect("/urls");
+  bcrypt.genSalt(10, (error, salt) => {
+    console.log(salt);
+    bcrypt.hash(password, salt, (error, hash) => {
+      console.log(hash);
+      
+      const user = {
+        id: userId,
+        email,
+        password: hash
+      };
+      users[userId] = user;
+      console.log(users);
+      response.cookie("user_id", userId);
+      response.redirect("/urls");
+    });
+  });
+
+
 });
 
 
@@ -194,11 +203,17 @@ app.post("/login", (request, response) => {
   if (!user) {
     return response.status(403).send("Please enter valid email address");
   }
-  if (user.password !== password) {
-    return response.status(403).send("Please enter valid password");
-  }
-  response.cookie("user_id", userId);
-  response.redirect("/urls");
+
+  bcrypt.compare(password, user.password, (error, result) => {
+    console.log(password);
+    console.log(user.password);
+    console.log(result);
+    if (!result) {
+      return response.status(403).send("Please enter valid password");
+    }
+    response.cookie("user_id", userId);
+    response.redirect("/urls");
+  });
 });
 
 // clear cookie when logout
