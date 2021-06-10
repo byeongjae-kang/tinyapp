@@ -1,23 +1,17 @@
-/*
-used dependencies": {
-  "body-parser": "^1.19.0",
-  "cookie-parser": "^1.4.5",
-  "ejs": "^3.1.6",
-  "express": "^4.17.1",
-  "morgan": "^1.10.0",
-  "nodemon": "^2.0.7"
-}
-*/
+
 const express = require("express");
 const app = express();
 const PORT = 8607;
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 const morgan = require("morgan");
 const bcrypt = require("bcryptjs");
 app.set("view engine", "ejs");
-app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 
 
 
@@ -55,10 +49,10 @@ const generateRandomString = () => {
   return randomString;
 };
 // get email and return user or false
-const checkUserExistsByEmail = (email) => {
-  const keys = Object.keys(users);
+const getUserByEmail = (email, database) => {
+  const keys = Object.keys(database);
   for (const key of keys) {
-    const user = users[key];
+    const user = database[key];
     if (user.email === email) {
       return user;
     }
@@ -82,7 +76,7 @@ const urlsForUser = (id) => {
 // routes urls---------------------------------------------------------------------
 // render index template
 app.get("/urls", (request, response) => {
-  const userId = request.cookies["user_id"];
+  const userId = request.session['user_id'];
   const user = users[userId];
   const urls = urlsForUser(userId);
   const templateVars = { urls, user };
@@ -90,7 +84,7 @@ app.get("/urls", (request, response) => {
 });
 // create new url
 app.get("/urls/new", (request, response) => {
-  const userId = request.cookies.user_id;
+  const userId = request.session['user_id'];
   const user =  users[userId];
   if (!user) {
     return response.redirect("/login");
@@ -103,7 +97,7 @@ app.get("/urls/new", (request, response) => {
 app.post("/urls", (request, response) => {
   const randomString = generateRandomString();
   const longURL = request.body.longURL;
-  const userId = request.cookies["user_id"];
+  const userId = request.session["user_id"];
   urlDatabase[randomString] = { longURL, userId };
   response.redirect(`/urls/${randomString}`);
 });
@@ -111,7 +105,7 @@ app.post("/urls", (request, response) => {
 app.get("/urls/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
-  const user = users[request.cookies["user_id"]];
+  const user = users[request.session["user_id"]];
   const templateVars = { shortURL, longURL, user };
   response.render("urls_show", templateVars);
 });
@@ -123,7 +117,7 @@ app.get("/u/:shortURL", (request, response) => {
 });
 // edit longURL
 app.post("/urls/:shortURL", (request, response) => {
-  const userId = request.cookies["user_id"];
+  const userId = request.session["user_id"];
   const shortURL = request.params.shortURL;
   if (userId) {
     const longURL = request.body.longURL;
@@ -133,7 +127,7 @@ app.post("/urls/:shortURL", (request, response) => {
 });
 // remove urls
 app.post("/urls/:shortURL/delete", (request, response) => {
-  const userId = request.cookies["user_id"];
+  const userId = request.session["user_id"];
   if (userId) {
     const shortURL = request.params.shortURL;
     delete urlDatabase[shortURL];
@@ -146,7 +140,7 @@ app.post("/urls/:shortURL/delete", (request, response) => {
 // register section -----------------------------------------------------------
 // render register template
 app.get("/register", (request, response) => {
-  const userId = request.cookies["user_id"];
+  const userId = request.session["user_id"];
   const user = users[userId];
   const templateVars = { user };
   response.render("user-registration", templateVars);
@@ -162,7 +156,7 @@ app.post("/register", (request, response) => {
   if (!password) {
     return response.status(400).send("please enter password");
   }
-  if (checkUserExistsByEmail(email)) {
+  if (getUserByEmail(email, users)) {
     return response.status(400).send("the email address exist");
   }
   bcrypt.genSalt(10, (error, salt) => {
@@ -177,7 +171,7 @@ app.post("/register", (request, response) => {
       };
       users[userId] = user;
       console.log(users);
-      response.cookie("user_id", userId);
+      request.session["user_id"] = userId;
       response.redirect("/urls");
     });
   });
@@ -190,7 +184,7 @@ app.post("/register", (request, response) => {
 // login section ---------------------------------------------------------------
 // to render login template
 app.get("/login", (request, response) => {
-  const user = users[request.cookies["user_id"]];
+  const user = users[request.session["user_id"]];
   const templateVars = { user };
   response.render('user-login', templateVars);
 });
@@ -198,7 +192,7 @@ app.get("/login", (request, response) => {
 app.post("/login", (request, response) => {
   const email = request.body.email;
   const password = request.body.password;
-  const user = checkUserExistsByEmail(email);
+  const user = getUserByEmail(email, users);
   const userId = user.id;
   if (!user) {
     return response.status(403).send("Please enter valid email address");
@@ -211,14 +205,14 @@ app.post("/login", (request, response) => {
     if (!result) {
       return response.status(403).send("Please enter valid password");
     }
-    response.cookie("user_id", userId);
+    request.session["user_id"] = userId;
     response.redirect("/urls");
   });
 });
 
 // clear cookie when logout
 app.post("/logout", (request, response) => {
-  response.clearCookie("user_id");
+  request.session = null;
   response.redirect('/login');
 });
 
