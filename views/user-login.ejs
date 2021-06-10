@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title>TinyApp</title>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"  integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <title>TinyApp</title>
+  </head>
+  <body>
   <%- include(`./partials/_header`) %>
-  <form class="card text-center card-footer text-muted" action="/login" method="POST" style="width: 300px;">
-    <h3>Login<br>Please Enter Email and Password</h3>
-    <input type="email" name="email" placeholder="email@urls.com" style="margin: 10px;">
-    <input type="password" name="password" placeholder="password" style="margin: 10px;">
-    <button type="submit" style="margin: 10px;">Login</button>
-  </form>
-</body>
+    <form action="/login" method="POST">
+      <h3>Login Page</h3>
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" name="email" class="form-control" id="exampleDropdownFormEmail2" placeholder="email@example.com">
+      </div>
+      <div class="form-group">
+        <label for="email">Password</label>
+        <input type="password" name="password" class="form-control" id="exampleDropdownFormPassword2" placeholder="Password">
+      </div>
+      <button type="submit" style="margin: 10px;" class="btn btn-primary">Login</button>
+    </form>
+  </body>
 </html>
