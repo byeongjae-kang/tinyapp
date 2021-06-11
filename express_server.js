@@ -1,14 +1,15 @@
-
 const express = require("express");
-const app = express();
-const PORT = 8607;
-const { getUserByEmail } = require('./helpers');
+const { getUserByEmail, urlsForUser, generateRandomString } = require('./helpers');
 const cookieSession = require("cookie-session");
 const morgan = require("morgan");
+const methodOverride = require('method-override');
 const bcrypt = require("bcryptjs");
+const app = express();
+const PORT = 8607;
 app.set("view engine", "ejs");
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
+app.use(methodOverride("_method"));
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
@@ -33,33 +34,12 @@ const users = {
     id: "user2RandomID",
     email: "user2@example.com",
     password: "dishwasher-funk"
+  },
+  "user3RandomID": {
+    id: "user3RandomID",
+    email: "1@1",
+    password: '$2a$10$ykh3pKZjHr7VKXIJOMl6D.PR9sU.wyV2T6lzkI2Cugu/ibenne8Na'
   }
-};
-
-
-
-// functions --------------------------------------------------------------------
-// create random 6digit id
-const generateRandomString = () => {
-  let randomString = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  for (let i = 0; i < 6; i++) {
-    randomString += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return randomString;
-};
-
-const urlsForUser = (id) => {
-  const filteredObject = {};
-  const keys = Object.keys(urlDatabase);
-  for (const key of keys) {
-    const userId = urlDatabase[key].userId;
-    if (userId === id) {
-      filteredObject[key] = urlDatabase[key];
-    }
-  }
-  return filteredObject;
 };
 
 
@@ -69,7 +49,7 @@ const urlsForUser = (id) => {
 app.get("/urls", (request, response) => {
   const userId = request.session['user_id'];
   const user = users[userId];
-  const urls = urlsForUser(userId);
+  const urls = urlsForUser(userId, urlDatabase);
   const templateVars = { urls, user };
   response.render("urls_index", templateVars);
 });
@@ -80,7 +60,6 @@ app.get("/urls/new", (request, response) => {
   if (!user) {
     return response.redirect("/login");
   }
-
   const templateVars = { user };
   response.render("urls_new", templateVars);
 });
@@ -95,8 +74,16 @@ app.post("/urls", (request, response) => {
 // render url_show templates
 app.get("/urls/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
-  const longURL = urlDatabase[shortURL].longURL;
   const user = users[request.session["user_id"]];
+  const url = urlDatabase[shortURL];
+  if (!user) {
+    return response.send("you are not authorized");
+  }
+  if (urlDatabase[shortURL].userId !== user.id) {
+    console.log(urlDatabase[shortURL].userId);
+    return response.send("you are not authorized");
+  }
+  const longURL = url.longURL;
   const templateVars = { shortURL, longURL, user };
   response.render("urls_show", templateVars);
 });
@@ -107,17 +94,17 @@ app.get("/u/:shortURL", (request, response) => {
   response.redirect(longURL);
 });
 // edit longURL
-app.post("/urls/:shortURL", (request, response) => {
+app.patch("/urls/:shortURL", (request, response) => {
   const userId = request.session["user_id"];
   const shortURL = request.params.shortURL;
   const longURL = request.body.longURL;
   if (userId) {
     urlDatabase[shortURL].longURL = longURL;
   }
-  response.redirect(`/urls/${shortURL}`);
+  response.redirect(`/urls/`);
 });
 // remove urls
-app.post("/urls/:shortURL/delete", (request, response) => {
+app.delete("/urls/:shortURL", (request, response) => {
   const userId = request.session["user_id"];
   if (userId) {
     const shortURL = request.params.shortURL;
@@ -134,7 +121,7 @@ app.get("/register", (request, response) => {
   const userId = request.session["user_id"];
   const user = users[userId];
   const templateVars = { user };
-  response.render("user-registration", templateVars);
+  response.render("user_registration", templateVars);
 });
 // store when user email and password, but if exists, set status code and send message
 app.post("/register", (request, response) => {
@@ -166,8 +153,6 @@ app.post("/register", (request, response) => {
       response.redirect("/urls");
     });
   });
-
-
 });
 
 
@@ -177,30 +162,24 @@ app.post("/register", (request, response) => {
 app.get("/login", (request, response) => {
   const user = users[request.session["user_id"]];
   const templateVars = { user };
-  response.render('user-login', templateVars);
+  response.render('user_login', templateVars);
 });
 // check email and password, and if correct then set cookie and redirect to urls page
 app.post("/login", (request, response) => {
   const email = request.body.email;
   const password = request.body.password;
   const user = getUserByEmail(email, users);
-  const userId = user.id;
   if (!user) {
     return response.status(403).send("Please enter valid email address");
   }
-
   bcrypt.compare(password, user.password, (error, result) => {
-    console.log(password);
-    console.log(user.password);
-    console.log(result);
     if (!result) {
       return response.status(403).send("Please enter valid password");
     }
-    request.session["user_id"] = userId;
+    request.session["user_id"] = user.id;
     response.redirect("/urls");
   });
 });
-
 // clear cookie when logout
 app.post("/logout", (request, response) => {
   request.session = null;
@@ -210,15 +189,15 @@ app.post("/logout", (request, response) => {
 
 
 // worming up, not critical -----------------------------------------------------
-app.get("/", (request, response) => {
-  response.send("Hello!");
-});
 app.get("/urls.json", (request, response) => {
   response.json(urlDatabase);
 });
-app.get("/hello", (request, response) => {
-  response.send("<html><body>Hello <b>World</b></body> </html>\n");
-});
+// app.get("/", (request, response) => {
+//  response.send("Hello!");
+// });
+// app.get("/hello", (request, response) => {
+//  response.send("<html><body>Hello <b>World</b></body> </html>\n");
+// });
 
 
 

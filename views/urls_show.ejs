@@ -5,7 +5,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"  integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <title>URL - TinyApp Example</title>
   </head>
-
   <body>
   <%- include(`./partials/_header`) %>
     <div class="card text-center">
@@ -16,7 +15,7 @@
         </div>
         <div class="card-footer text-muted">
           <h1>Edit</h1>
-          <form action="/urls/<%= shortURL %>" method="POST">
+          <form method="POST" action="/urls/<%= shortURL %>?_method=PATCH">
             <div class="form-group mb-2">
               <label for="longURL">New URL:</label>
               <input type="text" name="longURL" placeholder="http://" style="width: 200px;">
