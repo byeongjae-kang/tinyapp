@@ -77,10 +77,10 @@ app.get("/urls/:shortURL", (request, response) => {
   const user = users[request.session["user_id"]];
   const url = urlDatabase[shortURL];
   if (!user) {
-    return response.send("you are not authorized");
+    return response.statu(400).send("you are not authorized");
   }
   if (urlDatabase[shortURL].userId !== user.id) {
-    return response.send("you are not authorized");
+    return response.status(400).send("you are not authorized");
   }
   const longURL = url.longURL;
   const templateVars = { shortURL, longURL, user };
@@ -90,6 +90,10 @@ app.get("/urls/:shortURL", (request, response) => {
 // redirect to actual website using shortURL
 app.get("/u/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
+  if (!urlDatabase[shortURL]) {
+    console.log(urlDatabase[shortURL]);
+    response.status(404).send('This is page does not exist.');
+  }
   const longURL = urlDatabase[shortURL].longURL;
   response.redirect(longURL);
 });
@@ -184,7 +188,7 @@ app.post("/login", (request, response) => {
 // clear cookie when logout
 app.post("/logout", (request, response) => {
   request.session = null;
-  response.redirect('/login');
+  response.redirect('/urls');
 });
 
 
