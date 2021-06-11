@@ -23,17 +23,14 @@ const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userId: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userId: "aJ48lW" }
 };
+
+
 // when user registered info stored in here
 const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
     password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
   },
   "user3RandomID": {
     id: "user3RandomID",
@@ -53,6 +50,7 @@ app.get("/urls", (request, response) => {
   const templateVars = { urls, user };
   response.render("urls_index", templateVars);
 });
+
 // render new template
 app.get("/urls/new", (request, response) => {
   const userId = request.session['user_id'];
@@ -63,6 +61,7 @@ app.get("/urls/new", (request, response) => {
   const templateVars = { user };
   response.render("urls_new", templateVars);
 });
+
 //creat new short URL
 app.post("/urls", (request, response) => {
   const randomString = generateRandomString();
@@ -71,6 +70,7 @@ app.post("/urls", (request, response) => {
   urlDatabase[randomString] = { longURL, userId };
   response.redirect(`/urls/${randomString}`);
 });
+
 // render url_show templates
 app.get("/urls/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
@@ -80,19 +80,20 @@ app.get("/urls/:shortURL", (request, response) => {
     return response.send("you are not authorized");
   }
   if (urlDatabase[shortURL].userId !== user.id) {
-    console.log(urlDatabase[shortURL].userId);
     return response.send("you are not authorized");
   }
   const longURL = url.longURL;
   const templateVars = { shortURL, longURL, user };
   response.render("urls_show", templateVars);
 });
+
 // redirect to actual website using shortURL
 app.get("/u/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
   response.redirect(longURL);
 });
+
 // edit longURL
 app.patch("/urls/:shortURL", (request, response) => {
   const userId = request.session["user_id"];
@@ -103,6 +104,7 @@ app.patch("/urls/:shortURL", (request, response) => {
   }
   response.redirect(`/urls/`);
 });
+
 // remove urls
 app.delete("/urls/:shortURL", (request, response) => {
   const userId = request.session["user_id"];
@@ -123,6 +125,7 @@ app.get("/register", (request, response) => {
   const templateVars = { user };
   response.render("user_registration", templateVars);
 });
+
 // store when user email and password, but if exists, set status code and send message
 app.post("/register", (request, response) => {
   const userId = generateRandomString();
@@ -138,17 +141,13 @@ app.post("/register", (request, response) => {
     return response.status(400).send("the email address exist");
   }
   bcrypt.genSalt(10, (error, salt) => {
-    console.log(salt);
     bcrypt.hash(password, salt, (error, hash) => {
-      console.log(hash);
-      
       const user = {
         id: userId,
         email,
         password: hash
       };
       users[userId] = user;
-      console.log(users);
       request.session["user_id"] = userId;
       response.redirect("/urls");
     });
@@ -164,6 +163,7 @@ app.get("/login", (request, response) => {
   const templateVars = { user };
   response.render('user_login', templateVars);
 });
+
 // check email and password, and if correct then set cookie and redirect to urls page
 app.post("/login", (request, response) => {
   const email = request.body.email;
@@ -180,6 +180,7 @@ app.post("/login", (request, response) => {
     response.redirect("/urls");
   });
 });
+
 // clear cookie when logout
 app.post("/logout", (request, response) => {
   request.session = null;
