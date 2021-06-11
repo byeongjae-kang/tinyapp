@@ -73,7 +73,7 @@ app.get("/urls", (request, response) => {
   const templateVars = { urls, user };
   response.render("urls_index", templateVars);
 });
-// create new url
+// render new template
 app.get("/urls/new", (request, response) => {
   const userId = request.session['user_id'];
   const user =  users[userId];
@@ -84,7 +84,7 @@ app.get("/urls/new", (request, response) => {
   const templateVars = { user };
   response.render("urls_new", templateVars);
 });
-//url modification
+//creat new short URL
 app.post("/urls", (request, response) => {
   const randomString = generateRandomString();
   const longURL = request.body.longURL;
@@ -110,8 +110,8 @@ app.get("/u/:shortURL", (request, response) => {
 app.post("/urls/:shortURL", (request, response) => {
   const userId = request.session["user_id"];
   const shortURL = request.params.shortURL;
+  const longURL = request.body.longURL;
   if (userId) {
-    const longURL = request.body.longURL;
     urlDatabase[shortURL].longURL = longURL;
   }
   response.redirect(`/urls/${shortURL}`);
