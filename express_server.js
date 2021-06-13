@@ -87,7 +87,7 @@ app.get("/urls/:shortURL", (request, response) => {
   const user = users[request.session["user_id"]];
   const url = urlDatabase[shortURL];
   if (!user) {
-    return response.statu(400).send("you are not authorized");
+    return response.status(400).send("you are not authorized");
   }
   if (urlDatabase[shortURL].userId !== user.id) {
     return response.status(400).send("you are not authorized");
