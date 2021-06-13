@@ -101,7 +101,6 @@ app.get("/urls/:shortURL", (request, response) => {
 app.get("/u/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
   if (!urlDatabase[shortURL]) {
-    console.log(urlDatabase[shortURL]);
     response.status(404).send('This is page does not exist.');
   }
   const longURL = urlDatabase[shortURL].longURL;
@@ -190,7 +189,6 @@ app.post("/login", (request, response) => {
     if (!result) {
       return response.status(403).send("Please enter valid password");
     }
-    console.log(user);
     request.session["user_id"] = user.id;
     response.redirect("/urls");
   });
