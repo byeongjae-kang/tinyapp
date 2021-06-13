@@ -87,10 +87,13 @@ app.get("/urls/:shortURL", (request, response) => {
   const user = users[request.session["user_id"]];
   const url = urlDatabase[shortURL];
   if (!user) {
-    return response.status(400).send("you are not authorized");
+    return response.status(404).send('This is page does not exist.');
+  }
+  if (!url) {
+    return response.status(404).send('This is page does not exist.');
   }
   if (urlDatabase[shortURL].userId !== user.id) {
-    return response.status(400).send("you are not authorized");
+    return response.status(404).send('This is page does not exist.');
   }
   const longURL = url.longURL;
   const templateVars = { shortURL, longURL, user };
