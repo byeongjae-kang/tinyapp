@@ -197,9 +197,14 @@ app.post("/logout", (request, response) => {
 app.get("/urls.json", (request, response) => {
   response.json(urlDatabase);
 });
-// app.get("/", (request, response) => {
-//  response.send("Hello!");
-// });
+app.get("/", (request, response) => {
+  const userId = request.session["user_id"];
+  const user = users[userId];
+  if (!user) {
+    response.redirect("/login");
+  }
+  response.redirect("/urls");
+});
 // app.get("/hello", (request, response) => {
 //  response.send("<html><body>Hello <b>World</b></body> </html>\n");
 // });
