@@ -204,9 +204,9 @@ app.post("/logout", (request, response) => {
 app.get("/urls.json", (request, response) => {
   response.json(urlDatabase);
 });
-// app.get("/hello", (request, response) => {
-//  response.send("<html><body>Hello <b>World</b></body> </html>\n");
-// });
+app.get("/hello", (request, response) => {
+  response.send("<html><body>Hello <b>World</b></body> </html>\n");
+});
 
 
 
