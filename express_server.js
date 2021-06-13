@@ -33,7 +33,7 @@ const users = {
     password: "purple-monkey-dinosaur"
   },
   "user3RandomID": {
-    id: "user3RandomID",
+    id: "userRandomID2",
     email: "1@1",
     password: '$2a$10$ykh3pKZjHr7VKXIJOMl6D.PR9sU.wyV2T6lzkI2Cugu/ibenne8Na'
   }
@@ -42,6 +42,16 @@ const users = {
 
 
 // routes urls---------------------------------------------------------------------
+// redirect user to /urls page if users is logged in, otherwise /login page
+app.get("/", (request, response) => {
+  const userId = request.session["user_id"];
+  const user = users[userId];
+  if (!user) {
+    response.redirect("/login");
+  }
+  response.redirect("/urls");
+});
+
 // render index template
 app.get("/urls", (request, response) => {
   const userId = request.session['user_id'];
@@ -174,12 +184,13 @@ app.post("/login", (request, response) => {
   const password = request.body.password;
   const user = getUserByEmail(email, users);
   if (!user) {
-    return response.status(403).send("Please enter valid email address");
+    return response.status(403).send("You are not signed up, Please register!");
   }
   bcrypt.compare(password, user.password, (error, result) => {
     if (!result) {
       return response.status(403).send("Please enter valid password");
     }
+    console.log(user);
     request.session["user_id"] = user.id;
     response.redirect("/urls");
   });
@@ -196,14 +207,6 @@ app.post("/logout", (request, response) => {
 // worming up, not critical -----------------------------------------------------
 app.get("/urls.json", (request, response) => {
   response.json(urlDatabase);
-});
-app.get("/", (request, response) => {
-  const userId = request.session["user_id"];
-  const user = users[userId];
-  if (!user) {
-    response.redirect("/login");
-  }
-  response.redirect("/urls");
 });
 // app.get("/hello", (request, response) => {
 //  response.send("<html><body>Hello <b>World</b></body> </html>\n");
