@@ -142,8 +142,7 @@ app.get("/register", (request, response) => {
 // store when user email and password, but if exists, set status code and send message
 app.post("/register", (request, response) => {
   const userId = generateRandomString();
-  const email = request.body.email;
-  const password = request.body.password;
+  const { email, password } = request.body;
   if (!email) {
     return response.status(400).send("please enter email address");
   }
@@ -179,8 +178,7 @@ app.get("/login", (request, response) => {
 
 // check email and password, and if correct then set cookie and redirect to urls page
 app.post("/login", (request, response) => {
-  const email = request.body.email;
-  const password = request.body.password;
+  const { email, password } = request.body;
   const user = getUserByEmail(email, users);
   if (!user) {
     return response.status(403).send("You are not signed up, Please register!");
