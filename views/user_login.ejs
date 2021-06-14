@@ -10,7 +10,7 @@
   <body>
   <%- include(`./partials/_header`) %>
     <form action="/login" method="POST">
-      <h3>Login Page</h3>
+      <h3><%= message %></h3>
       <div class="form-group">
         <label for="email">Email address</label>
         <input type="email" name="email" class="form-control" id="exampleDropdownFormEmail2" placeholder="email@example.com" required>

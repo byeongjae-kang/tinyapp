@@ -85,15 +85,17 @@ app.post("/urls", (request, response) => {
 app.get("/urls/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
   const user = users[request.session["user_id"]];
+  const message = 'Please log in or register!!';
   const url = urlDatabase[shortURL];
   if (!user) {
-    return response.status(404).send('This is page does not exist.');
+    const templateVars = { user, message};
+    return response.render("user_login", templateVars);
   }
   if (!url) {
     return response.status(404).send('This is page does not exist.');
   }
   if (urlDatabase[shortURL].userId !== user.id) {
-    return response.status(404).send('This is page does not exist.');
+    return response.status(400).send('the shortURL is not valid, please create new URL .');
   }
   const longURL = url.longURL;
   const templateVars = { shortURL, longURL, user };
@@ -175,7 +177,8 @@ app.post("/register", (request, response) => {
 // to render login template
 app.get("/login", (request, response) => {
   const user = users[request.session["user_id"]];
-  const templateVars = { user };
+  const message = 'Login Page';
+  const templateVars = { user, message };
   response.render('user_login', templateVars);
 });
 
