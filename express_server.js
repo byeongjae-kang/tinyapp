@@ -47,7 +47,7 @@ app.get("/", (request, response) => {
   const userId = request.session["user_id"];
   const user = users[userId];
   if (!user) {
-    response.redirect("/login");
+    return response.redirect("/login");
   }
   response.redirect("/urls");
 });
@@ -106,7 +106,7 @@ app.get("/urls/:shortURL", (request, response) => {
 app.get("/u/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
   if (!urlDatabase[shortURL]) {
-    response.status(404).send('This is page does not exist.');
+    return response.status(404).send('This is page does not exist.');
   }
   const longURL = urlDatabase[shortURL].longURL;
   response.redirect(longURL);
