@@ -1,14 +1,14 @@
 const express = require("express");
-const { getUserByEmail, urlsForUser, generateRandomString } = require('./helpers');
-const cookieSession = require("cookie-session");
-const morgan = require("morgan");
-const methodOverride = require('method-override');
 const bcrypt = require("bcryptjs");
+const cookieSession = require("cookie-session");
+const methodOverride = require('method-override');
+const morgan = require("morgan");
+const { getUserByEmail, urlsForUser, generateRandomString } = require('./helpers');
 const app = express();
 const PORT = 8607;
 app.set("view engine", "ejs");
-app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
+app.use(morgan('dev'));
 app.use(methodOverride("_method"));
 app.use(cookieSession({
   name: 'session',
