@@ -77,8 +77,10 @@ app.post("/urls", (request, response) => {
   const randomString = generateRandomString();
   const longURL = request.body.longURL;
   const userId = request.session["user_id"];
-  urlDatabase[randomString] = { longURL, userId };
-  response.redirect(`/urls/${randomString}`);
+  if (userId && longURL) {
+    urlDatabase[randomString] = { longURL, userId };
+    response.redirect(`/urls/${randomString}`);
+  }
 });
 
 // render url_show templates
@@ -92,7 +94,7 @@ app.get("/urls/:shortURL", (request, response) => {
     return response.render("user_login", templateVars);
   }
   if (!url) {
-    return response.status(404).send('This is page does not exist.');
+    return response.status(404).send('You do not own this URL.');
   }
   if (urlDatabase[shortURL].userId !== user.id) {
     return response.status(400).send('the shortURL is not valid, please create new URL .');
