@@ -77,10 +77,15 @@ app.post("/urls", (request, response) => {
   const randomString = generateRandomString();
   const longURL = request.body.longURL;
   const userId = request.session["user_id"];
-  if (userId && longURL) {
-    urlDatabase[randomString] = { longURL, userId };
-    response.redirect(`/urls/${randomString}`);
+  if (userId) {
+    if (longURL) {
+      urlDatabase[randomString] = { longURL, userId };
+      return response.redirect(`/urls/${randomString}`);
+    } else {
+      return response.status(400).send("Please enter longURL");
+    }
   }
+  response.status(400).send("Please login to create new url");
 });
 
 // render url_show templates
@@ -120,19 +125,29 @@ app.patch("/urls/:shortURL", (request, response) => {
   const shortURL = request.params.shortURL;
   const longURL = request.body.longURL;
   if (userId) {
-    urlDatabase[shortURL].longURL = longURL;
+    if (urlDatabase[shortURL].userid === userId) {
+      urlDatabase[shortURL].longURL = longURL;
+      return response.redirect(`/urls/`);
+    } else {
+      return response.status(405).send("This url does not belong to you");
+    }
   }
-  response.redirect(`/urls/`);
+  response.status(400).send("Please login to edit url");
 });
 
 // remove urls
 app.delete("/urls/:shortURL", (request, response) => {
   const userId = request.session["user_id"];
+  const shortURL = request.params.shortURL;
   if (userId) {
-    const shortURL = request.params.shortURL;
-    delete urlDatabase[shortURL];
+    if (urlDatabase[shortURL].userId === userId) {
+      delete urlDatabase[shortURL];
+      return response.redirect("/urls");
+    } else {
+      return response.status(405).send('This url does not belong to you');
+    }
   }
-  response.redirect("/urls");
+  response.status(400).send("Please login to delete url");
 });
 
 
